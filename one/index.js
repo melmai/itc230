@@ -18,7 +18,10 @@ function serveStaticFile(res, path, contentType, responseCode) {
 }
 
 http.createServer(function(req, res) {
+    // normalize url
     var path = req.url.replace(/\/?(?:\?.*)?$/, '').toLowerCase();
+
+    // routes
     switch(path) {
         case '':
             serveStaticFile(res, '/public/home.html', 'text/html');
@@ -27,7 +30,7 @@ http.createServer(function(req, res) {
             serveStaticFile(res, '/public/about.html', 'text/html');
             break;
         default:
-            serveStaticFile(res, 'public/404.html', 'text/html', 404);
+            serveStaticFile(res, '/public/404.html', 'text/html', 404);
             break;
     }
 }).listen(3000);
