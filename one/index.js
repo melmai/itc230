@@ -1,33 +1,35 @@
-var express = require('express');
-var app = express();
+var http = require('http'),
+    fs = require('fs');
 
-app.set('port', process.env.PORT || 3000);
+function serveStaticFile(res, path, contentType, responseCode) {
 
-app.get('/', function(req, res) {
-    res.type('text/html');
-    res.send('Home');
-});
+    // if no var set, sets response code to OK
+    if(!responseCode) responseCode = 200;
 
-app.get('/about', function (req, res) {
-    res.type('text/plain');
-    res.send('I still haven\'t decided what my application will be about!');
-});
+    fs.readFile(__dirname + path, function(err, data) {
+        if(err) {
+            res.writeHead(500, { 'Content-Type': 'text/plain'});
+            res.end('500 - Internal Error');
+        } else {
+            res.writeHead(responseCode, {'Content-Type': contentType});
+            res.end(data);
+        }
+    });
+}
 
-// custom 404 page
-app.use(function(req, res) {
-    res.type('text/plain');
-    res.status(404);
-    res.send('404 - Not Found');
-});
+http.createServer(function(req, res) {
+    var path = req.url.replace(/\/?(?:\?.*)?$/, '').toLowerCase();
+    switch(path) {
+        case '':
+            serveStaticFile(res, '/public/home.html', 'text/html');
+            break;
+        case '/about':
+            serveStaticFile(res, '/public/about.html', 'text/html');
+            break;
+        default:
+            serveStaticFile(res, 'public/404.html', 'text/html', 404);
+            break;
+    }
+}).listen(3000);
 
-// custom 500 page
-app.use(function(err, req, res, next) {
-    console.error(err.stack);
-    res.type('text/plain');
-    res.status(500);
-    res.send('500 - Server Error');
-});
-
-app. listen(app.get('port'), function() {
-    console.log('Express started on http://localhost:' + app.get('port') + '; press Ctrl-C to terminate.');
-});
+console.log('Server started on localhost:3000; press Ctrl-C to terminate...');
