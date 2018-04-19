@@ -33,10 +33,14 @@ var books = [{
     pubDate: 2015
 }];
 
+// returns an array of all book objects
+// @param none
 var getAll = function getAll() {
     return books;
 };
 
+// returns a single book based on title (exact match)
+// @param book title
 var get = function get(x) {
     var book = books.filter(function (book) {
         return book.title.toLowerCase() == x;
@@ -44,15 +48,20 @@ var get = function get(x) {
     return book;
 };
 
+// removes a book from the array
+// @param book title
 var remove = function remove(x) {
+    // store index of book to remove
     var index = books.findIndex(function (book) {
         return book.title.toLowerCase() == x;
     });
 
     if (index >= 0) {
+        // if book exists, remove
         var removedBook = books.splice(index, 1);
         return 'Deleted ' + removedBook[0].title;
     } else {
+        // else inform user no book match
         return 'No book found with that title';
     }
 };
