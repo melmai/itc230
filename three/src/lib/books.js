@@ -46,7 +46,7 @@ const getAll = () => {
 // @param book title
 const get = (x) => {
     let book = books.filter(book => book.title.toLowerCase() == x);
-    return book;
+    return book[0];
 };
 
 // removes a book from the array

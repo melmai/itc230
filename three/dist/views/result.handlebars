@@ -1,3 +1,16 @@
-<h3>Search Results for {{title}}:</h3>
+<h3>Details</h3>
 
-{{book}}
+{{#if result}}
+    <ul>
+    {{#each result}}
+        <li>{{title}}</li>
+        <li>{{author}}</li>
+        <li>{{pubDate}}</li>
+    {{/each}}
+    </ul>
+{{#else}}
+    <p>No books found</p>
+{{/if}}
+
+
+<a href="/delete?title={{result.title}}">Delete Book</a>

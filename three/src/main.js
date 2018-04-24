@@ -1,6 +1,7 @@
 const express = require('express');
 const handlebars = require('express-handlebars').create({ defaultLayout: 'main' });
 const books = require('./lib/books.js');
+const parser = require('body-parser');
 
 const app = express();
 app.engine('handlebars', handlebars.engine);
@@ -8,33 +9,34 @@ app.set('view engine', 'handlebars');
 
 app.set('port', process.env.PORT || 3000);
 app.use(express.static(__dirname + '/public'));
+app.use(parser.urlencoded({ extended: true }));
 
 // routing
-app.get('/', (req, res) => {
-    let showList = books.getAll();
-    res.render('home', { 
-        books: showList,
-        book: books.get(req.body.title)
-    });
-});
-
 app.get('/about', (req, res) => {
     res.render('about');
 });
 
-app.get('/result', (req, res) => {
-    let findBook = books.get(req.query.title);
-    res.render('result', {
+app.get('/detail', (req, res) => {
+    let getDetails = books.get(req.query.title);
+    res.render('detail', {
         title: req.query.title,
-        book: findBook,
+        result: getDetails
     });
 });
 
-app.get('delete', (req, res) => {
+app.get('/delete', (req, res) => {
     let deleteBook = books.remove(req.query.title);
     res.render('delete', {
         title: req.query.title,
         books: deleteBook,
+    });
+});
+
+app.get('/', (req, res) => {
+    let showList = books.getAll();
+    console.log(showList);
+    res.render('home', {
+        books: showList,
     });
 });
 

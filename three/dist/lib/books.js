@@ -45,7 +45,7 @@ var get = function get(x) {
     var book = books.filter(function (book) {
         return book.title.toLowerCase() == x;
     });
-    return book;
+    return book[0];
 };
 
 // removes a book from the array
