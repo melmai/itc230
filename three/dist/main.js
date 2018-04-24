@@ -1,5 +1,7 @@
 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var express = require('express');
 var handlebars = require('express-handlebars').create({ defaultLayout: 'main' });
 var books = require('./lib/books.js');
@@ -19,9 +21,23 @@ app.get('/about', function (req, res) {
 });
 
 app.get('/detail', function (req, res) {
-    var getDetails = books.get(req.query.title);
+    var title = req.query.title;
+    var getDetails = books.get(title);
     res.render('detail', {
-        title: req.query.title,
+        title: title,
+        result: getDetails
+    });
+});
+
+app.post('/detail', function (req, res) {
+    var title = req.body.title.toLowerCase();
+    var getDetails = books.get(title);
+    console.log(title);
+    console.log(typeof title === 'undefined' ? 'undefined' : _typeof(title));
+    console.log(getDetails);
+    console.log(req.body);
+    res.render('detail', {
+        title: title,
         result: getDetails
     });
 });

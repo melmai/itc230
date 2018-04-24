@@ -17,9 +17,23 @@ app.get('/about', (req, res) => {
 });
 
 app.get('/detail', (req, res) => {
-    let getDetails = books.get(req.query.title);
+    let title = req.query.title;
+    let getDetails = books.get(title);
     res.render('detail', {
-        title: req.query.title,
+        title: title,
+        result: getDetails
+    });
+});
+
+app.post('/detail', (req, res) => {
+    let title = req.body.title.toLowerCase();
+    let getDetails = books.get(title);
+    console.log(title);
+    console.log(typeof(title));
+    console.log(getDetails);
+    console.log(req.body);
+    res.render('detail', {
+        title: title,
         result: getDetails
     });
 });
