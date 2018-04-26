@@ -1,20 +1,24 @@
 <h2>Add Book</h2>
 
 {{#if author}}
+<h3>The following book has been added to the library:</h3>
 <table class="table">
     <tr>
-        <th>Title</th>
+        <td>Title</th>
         <td>{{title}}</td>
     </tr>
     <tr>
-        <th>Author</th>
+        <td>Author</th>
         <td>{{author}}</td>
     </tr>
     <tr>
-        <th>Publishing Date</th>
+        <td>Publishing Date</th>
         <td>{{pubDate}}</td>
     </tr>
 </table>
+
+<a href="/">Back to Book List</a> | <a href="/delete?title={{title}}">Delete</a>
+
 {{else}}
 <form method="POST" action="/add">
     <div class="form-group">

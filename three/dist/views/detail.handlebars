@@ -5,7 +5,7 @@
 <table class="table">
     <tr>
         <td>Title</td>
-        <td>{{result.title}} | <a href="/delete?title={{result.title}}">Delete</a></td>
+        <td>{{result.title}}</td>
     </tr>
     <tr>
         <td>Author</td>
@@ -21,4 +21,4 @@
     <p>No books found</p>
 {{/if}}
 
-<a href="/">Back to Book List</a>
+<a href="/">Back to Book List</a> | <a href="/delete?title={{result.title}}">Delete</a>
