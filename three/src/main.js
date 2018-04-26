@@ -26,29 +26,43 @@ app.get('/detail', (req, res) => {
 });
 
 app.post('/detail', (req, res) => {
-    let title = req.body.title.toLowerCase();
-    let getDetails = books.get(title);
-    console.log(title);
-    console.log(typeof(title));
-    console.log(getDetails);
-    console.log(req.body);
+    let title = req.body.title;
+    let getDetails = books.get(title.toLowerCase());
     res.render('detail', {
         title: title,
         result: getDetails
     });
 });
 
+app.get('/add', (req, res) => {
+    res.render('add');
+});
+
+app.post('/add', (req, res) => {
+    let title = req.body.title || '';
+    let author = req.body.author || '';
+    let pubDate = req.body.pubDate || '';
+    let addBook = books.add(title, author, pubDate);
+    res.render('add', {
+        books: addBook,
+        title: title,
+        author: author,
+        pubDate: pubDate
+    });
+});
+
 app.get('/delete', (req, res) => {
-    let deleteBook = books.remove(req.query.title);
+    let title = req.query.title;
+    let deleteBook = books.remove(title.toLowerCase());
     res.render('delete', {
-        title: req.query.title,
-        books: deleteBook,
+        title: title,
+        books: deleteBook.book,
+        count: deleteBook.count
     });
 });
 
 app.get('/', (req, res) => {
     let showList = books.getAll();
-    console.log(showList);
     res.render('home', {
         books: showList,
     });
@@ -61,7 +75,7 @@ app.use((req, res) => {
 });
 
 // 500 Error
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
     res.status(500);
     res.render('500');
 });

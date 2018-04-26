@@ -46,21 +46,37 @@ const getAll = () => {
 // @param book title
 const get = (x) => {
     let book = books.filter(book => book.title.toLowerCase() == x);
-    return book[0];
+    if (book.length) {
+        return book[0];
+    } else {
+        return false;
+    }
 };
 
 // removes a book from the array
 // @param book title
 const remove = (x) => {
+
     // store index of book to remove
-    let index = books.findIndex(book => book.title.toLowerCase() == x);
+    let index = books.findIndex(book => book.title.toLowerCase() == x) || -1;
     
     if(index >= 0) {                                // if book exists, remove
-        let removedBook = books.splice(index, 1);
-        return `Deleted ${removedBook[0].title}`;
+        let deletedBook = books.splice(index, 1);   // returns array with one object
+        return { book: deletedBook, count: books.length };
     } else {                                        // else inform user no book match
-        return 'No book found with that title';
+        return false;
     }
 };
 
-export { get, getAll, remove };
+const add = (title, author, pubDate) => {
+    let book = {
+        title: title,
+        author: author,
+        pubDate: pubDate
+    };
+    books.push(book);
+    console.log(books);
+    return books;
+};
+
+export { get, getAll, remove, add };

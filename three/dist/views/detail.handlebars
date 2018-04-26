@@ -1,9 +1,11 @@
 <h3>Details for {{title}}:</h3>
 
+
+{{#if result}}
 <table class="table">
     <tr>
         <td>Title</td>
-        <td>{{result.title}}</td>
+        <td>{{result.title}} | <a href="/delete?title={{result.title}}">Delete</a></td>
     </tr>
     <tr>
         <td>Author</td>
@@ -14,3 +16,9 @@
         <td>{{result.pubDate}}</td>
     </tr>
 </table>
+
+{{else}}
+    <p>No books found</p>
+{{/if}}
+
+<a href="/">Back to Book List</a>

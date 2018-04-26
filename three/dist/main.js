@@ -1,7 +1,5 @@
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var express = require('express');
 var handlebars = require('express-handlebars').create({ defaultLayout: 'main' });
 var books = require('./lib/books.js');
@@ -30,29 +28,43 @@ app.get('/detail', function (req, res) {
 });
 
 app.post('/detail', function (req, res) {
-    var title = req.body.title.toLowerCase();
-    var getDetails = books.get(title);
-    console.log(title);
-    console.log(typeof title === 'undefined' ? 'undefined' : _typeof(title));
-    console.log(getDetails);
-    console.log(req.body);
+    var title = req.body.title;
+    var getDetails = books.get(title.toLowerCase());
     res.render('detail', {
         title: title,
         result: getDetails
     });
 });
 
+app.get('/add', function (req, res) {
+    res.render('add');
+});
+
+app.post('/add', function (req, res) {
+    var title = req.body.title || '';
+    var author = req.body.author || '';
+    var pubDate = req.body.pubDate || '';
+    var addBook = books.add(title, author, pubDate);
+    res.render('add', {
+        books: addBook,
+        title: title,
+        author: author,
+        pubDate: pubDate
+    });
+});
+
 app.get('/delete', function (req, res) {
-    var deleteBook = books.remove(req.query.title);
+    var title = req.query.title;
+    var deleteBook = books.remove(title.toLowerCase());
     res.render('delete', {
-        title: req.query.title,
-        books: deleteBook
+        title: title,
+        books: deleteBook.book,
+        count: deleteBook.count
     });
 });
 
 app.get('/', function (req, res) {
     var showList = books.getAll();
-    console.log(showList);
     res.render('home', {
         books: showList
     });
@@ -65,7 +77,7 @@ app.use(function (req, res) {
 });
 
 // 500 Error
-app.use(function (err, req, res, next) {
+app.use(function (err, req, res) {
     res.status(500);
     res.render('500');
 });

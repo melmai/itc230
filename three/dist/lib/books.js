@@ -45,27 +45,44 @@ var get = function get(x) {
     var book = books.filter(function (book) {
         return book.title.toLowerCase() == x;
     });
-    return book[0];
+    if (book.length) {
+        return book[0];
+    } else {
+        return false;
+    }
 };
 
 // removes a book from the array
 // @param book title
 var remove = function remove(x) {
+
     // store index of book to remove
     var index = books.findIndex(function (book) {
         return book.title.toLowerCase() == x;
-    });
+    }) || -1;
 
     if (index >= 0) {
         // if book exists, remove
-        var removedBook = books.splice(index, 1);
-        return 'Deleted ' + removedBook[0].title;
+        var deletedBook = books.splice(index, 1); // returns array with one object
+        return { book: deletedBook, count: books.length };
     } else {
         // else inform user no book match
-        return 'No book found with that title';
+        return false;
     }
+};
+
+var add = function add(title, author, pubDate) {
+    var book = {
+        title: title,
+        author: author,
+        pubDate: pubDate
+    };
+    books.push(book);
+    console.log(books);
+    return books;
 };
 
 exports.get = get;
 exports.getAll = getAll;
 exports.remove = remove;
+exports.add = add;
