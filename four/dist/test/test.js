@@ -54,11 +54,10 @@ describe('Book module', function () {
 
     it('fails to add existing book', function () {
         var result = books.add({
-            title: 'JavaScript and JQuery: Interactive Front-End Web Development',
-            author: 'Jon Duckett',
-            pubDate: 2013
+            title: 'Designing Interfaces',
+            author: 'Jennifer Tidwell',
+            pubDate: 2005
         });
-        console.log(result);
-        expect(result).to.equal(-1);
+        expect(result).to.be.false;
     });
 });

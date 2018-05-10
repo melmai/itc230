@@ -69,18 +69,19 @@ const remove = (x) => {
 };
 
 const add = (x) => {
-    books.forEach((book) => {
-        if(x.title == book.title) {
-            return -1;
-        }
-    });
-    let book = {
+    let newBook = {
         title: x.title,
         author: x.author,
         pubDate: x.pubDate
     };
-    books.push(book);
-    return books;
+    
+    let test = books.find(book => book.title == newBook.title);
+    if(test) {
+        return false;
+    } else {
+        books.push(newBook);
+        return books;
+    }
 };
 
 export { get, getAll, remove, add };

@@ -72,18 +72,21 @@ var remove = function remove(x) {
 };
 
 var add = function add(x) {
-    books.forEach(function (book) {
-        if (x.title == book.title) {
-            return -1;
-        }
-    });
-    var book = {
+    var newBook = {
         title: x.title,
         author: x.author,
         pubDate: x.pubDate
     };
-    books.push(book);
-    return books;
+
+    var test = books.find(function (book) {
+        return book.title == newBook.title;
+    });
+    if (test) {
+        return false;
+    } else {
+        books.push(newBook);
+        return books;
+    }
 };
 
 exports.get = get;
