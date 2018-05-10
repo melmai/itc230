@@ -21,11 +21,16 @@ describe('Book module', () => {
     });
 
     it('deletes requested book', () => {
-        let result = books.remove('JavaScript and JQuery: Interactive Front-End Web Development');
+        let result = books.remove('javascript and jquery: interactive front-end web development');
         expect(result).to.deep.equal({
-            title: 'JavaScript and JQuery: Interactive Front-End Web Development',
-            author: 'Jon Duckett',
-            pubDate: 2013
+            book: [
+                {
+                    title: 'JavaScript and JQuery: Interactive Front-End Web Development',
+                    author: 'Jon Duckett',
+                    pubDate: 2013
+                }
+            ],
+            count: 6
         });
     });
 
@@ -35,11 +40,15 @@ describe('Book module', () => {
     });
 
     it('adds requested book', () => {
-        let result = books.remove('JavaScript and JQuery: Interactive Front-End Web Development');
-        expect(result).to.deep.equal({
-            title: 'JavaScript and JQuery: Interactive Front-End Web Development',
-            author: 'Jon Duckett',
-            pubDate: 2013
+        let result = books.add({
+            title: 'Book Title',
+            author: 'Author Name',
+            pubDate: 2018
+        });
+        expect(result).to.deep.include({
+            title: 'Book Title',
+            author: 'Author Name',
+            pubDate: 2018
         });
     });
 
@@ -49,6 +58,7 @@ describe('Book module', () => {
             author: 'Jon Duckett',
             pubDate: 2013
         });
+        console.log(result);
         expect(result).to.equal(-1);
     });
 });

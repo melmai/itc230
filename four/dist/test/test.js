@@ -9,9 +9,7 @@ var books = require('../lib/books');
 describe('Book module', function () {
     it('returns requested book', function () {
         var title = 'javascript and jquery: interactive front-end web development';
-        console.log(title);
         var result = books.get(title);
-        console.log(result);
         expect(result).to.deep.equal({
             title: 'JavaScript and JQuery: Interactive Front-End Web Development',
             author: 'Jon Duckett',
@@ -25,11 +23,14 @@ describe('Book module', function () {
     });
 
     it('deletes requested book', function () {
-        var result = books.remove('JavaScript and JQuery: Interactive Front-End Web Development');
+        var result = books.remove('javascript and jquery: interactive front-end web development');
         expect(result).to.deep.equal({
-            title: 'JavaScript and JQuery: Interactive Front-End Web Development',
-            author: 'Jon Duckett',
-            pubDate: 2013
+            book: [{
+                title: 'JavaScript and JQuery: Interactive Front-End Web Development',
+                author: 'Jon Duckett',
+                pubDate: 2013
+            }],
+            count: 6
         });
     });
 
@@ -39,11 +40,15 @@ describe('Book module', function () {
     });
 
     it('adds requested book', function () {
-        var result = books.remove('JavaScript and JQuery: Interactive Front-End Web Development');
-        expect(result).to.deep.equal({
-            title: 'JavaScript and JQuery: Interactive Front-End Web Development',
-            author: 'Jon Duckett',
-            pubDate: 2013
+        var result = books.add({
+            title: 'Book Title',
+            author: 'Author Name',
+            pubDate: 2018
+        });
+        expect(result).to.deep.include({
+            title: 'Book Title',
+            author: 'Author Name',
+            pubDate: 2018
         });
     });
 
@@ -53,6 +58,7 @@ describe('Book module', function () {
             author: 'Jon Duckett',
             pubDate: 2013
         });
+        console.log(result);
         expect(result).to.equal(-1);
     });
 });

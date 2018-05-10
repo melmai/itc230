@@ -72,9 +72,8 @@ var remove = function remove(x) {
 };
 
 var add = function add(x) {
-
     books.forEach(function (book) {
-        if (x.title === book.title) {
+        if (x.title == book.title) {
             return -1;
         }
     });

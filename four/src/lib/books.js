@@ -69,9 +69,8 @@ const remove = (x) => {
 };
 
 const add = (x) => {
-
     books.forEach((book) => {
-        if(x.title === book.title) {
+        if(x.title == book.title) {
             return -1;
         }
     });
