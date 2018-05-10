@@ -1,10 +1,12 @@
 {
-  "name": "three",
+  "name": "four",
   "version": "1.0.0",
-  "description": "week 3 package of itc230",
+  "description": "week 4 package of itc230",
   "main": "index.js",
   "scripts": {
-    "build": "babel src -d dist"
+    "build": "babel src -d dist",
+    "lint": "eslint src/*.js",
+    "test": "mocha dist/test/**"
   },
   "repository": {
     "type": "git",
@@ -24,11 +26,13 @@
   "devDependencies": {
     "babel": "^6.23.0",
     "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
+    "babel-core": "^6.26.3",
     "babel-loader": "^7.1.4",
     "babel-preset-env": "^1.6.1",
+    "chai": "^4.1.2",
     "eslint": "^4.19.1",
     "eslint-plugin-react": "^7.7.0",
-    "webpack": "^4.5.0"
+    "mocha": "^5.1.1",
+    "webpack": "^4.8.1"
   }
 }

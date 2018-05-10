@@ -68,15 +68,20 @@ const remove = (x) => {
     }
 };
 
-const add = (title, author, pubDate) => {
-    let book = {
-        title: title,
-        author: author,
-        pubDate: pubDate
+const add = (x) => {
+    let newBook = {
+        title: x.title,
+        author: x.author,
+        pubDate: x.pubDate
     };
-    books.push(book);
-    console.log(books);
-    return books;
+    
+    let test = books.find(book => book.title == newBook.title);
+    if(test) {
+        return false;
+    } else {
+        books.push(newBook);
+        return books;
+    }
 };
 
 export { get, getAll, remove, add };

@@ -42,7 +42,7 @@ app.post('/add', (req, res) => {
     let title = req.body.title || '';
     let author = req.body.author || '';
     let pubDate = req.body.pubDate || '';
-    let addBook = books.add(title, author, pubDate);
+    let addBook = books.add({title, author, pubDate});
     res.render('add', {
         books: addBook,
         title: title,

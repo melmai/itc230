@@ -71,15 +71,22 @@ var remove = function remove(x) {
     }
 };
 
-var add = function add(title, author, pubDate) {
-    var book = {
-        title: title,
-        author: author,
-        pubDate: pubDate
+var add = function add(x) {
+    var newBook = {
+        title: x.title,
+        author: x.author,
+        pubDate: x.pubDate
     };
-    books.push(book);
-    console.log(books);
-    return books;
+
+    var test = books.find(function (book) {
+        return book.title == newBook.title;
+    });
+    if (test) {
+        return false;
+    } else {
+        books.push(newBook);
+        return books;
+    }
 };
 
 exports.get = get;
