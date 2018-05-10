@@ -68,14 +68,19 @@ const remove = (x) => {
     }
 };
 
-const add = (title, author, pubDate) => {
+const add = (x) => {
+
+    books.forEach((book) => {
+        if(x.title === book.title) {
+            return -1;
+        }
+    });
     let book = {
-        title: title,
-        author: author,
-        pubDate: pubDate
+        title: x.title,
+        author: x.author,
+        pubDate: x.pubDate
     };
     books.push(book);
-    console.log(books);
     return books;
 };
 

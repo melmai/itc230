@@ -44,7 +44,7 @@ app.post('/add', function (req, res) {
     var title = req.body.title || '';
     var author = req.body.author || '';
     var pubDate = req.body.pubDate || '';
-    var addBook = books.add(title, author, pubDate);
+    var addBook = books.add({ title: title, author: author, pubDate: pubDate });
     res.render('add', {
         books: addBook,
         title: title,

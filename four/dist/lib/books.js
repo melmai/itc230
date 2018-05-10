@@ -71,14 +71,19 @@ var remove = function remove(x) {
     }
 };
 
-var add = function add(title, author, pubDate) {
+var add = function add(x) {
+
+    books.forEach(function (book) {
+        if (x.title === book.title) {
+            return -1;
+        }
+    });
     var book = {
-        title: title,
-        author: author,
-        pubDate: pubDate
+        title: x.title,
+        author: x.author,
+        pubDate: x.pubDate
     };
     books.push(book);
-    console.log(books);
     return books;
 };
 
