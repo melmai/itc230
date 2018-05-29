@@ -1,61 +1,18 @@
-let books = [
-    { 
-        title: 'HTML & CSS: Design and Build Interfaces',
-        author: 'Jon Duckett',
-        pubDate: 2011
-    },
-    {
-        title: 'JavaScript and JQuery: Interactive Front-End Web Development',
-        author: 'Jon Duckett',
-        pubDate: 2013
-    },
-    {
-        title: 'Designing Interfaces',
-        author: 'Jennifer Tidwell',
-        pubDate: 2005
-    },
-    {
-        title: 'Mastering Responsive Web Design with HTML5 and CSS3',
-        author: 'Ricardo Zea',
-        pubDate: 2015
-    },
-    {
-        title: 'Python Programming: An Introduction to Computer Science',
-        author: 'John M. Zelle',
-        pubDate: 2004
-    },
-    {
-        title: 'Guide to UNIX Using Linux, 4th ed.',
-        author: 'Michael Palmer',
-        pubDate: 2007
-    },
-    {
-        title: 'The Elements of User Experience',
-        author: 'Jesse James Garrett',
-        pubDate: 2015
-    },
-];
+// use Book model from db
+const Book = require('../models/Book');
 
-// returns an array of all book objects
-// @param none
-const getAll = () => {
-    return books;
-};
+// returns array that contains all book objects
+const getAll = () => Book.find({}, (err, result) => err ? err : result);
 
-// returns a single book based on title (exact match)
-// @param book title
+// returns book object based on title
 const get = (x) => {
-    let book = books.filter(book => book.title.toLowerCase() == x);
-    if (book.length) {
-        return book[0];
-    } else {
-        return false;
-    }
+    const pattern = new RegExp(x, 'i');
+    return Book.find({ title: {$regex: pattern} }, (err, result) => err ? err : result);
 };
 
-// removes a book from the array
+// removes a book
 // @param book title
-const remove = (x) => {
+/* const remove = (x) => {
 
     // store index of book to remove
     let index = books.findIndex(book => book.title.toLowerCase() == x) || -1;
@@ -82,6 +39,7 @@ const add = (x) => {
         books.push(newBook);
         return books;
     }
-};
+}; */
 
-export { get, getAll, remove, add };
+//module.exports =  {get, getAll, remove, add};
+module.exports =  {get, getAll};

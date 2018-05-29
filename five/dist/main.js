@@ -2,7 +2,7 @@
 
 var express = require('express');
 var handlebars = require('express-handlebars').create({ defaultLayout: 'main' });
-var books = require('./lib/books.js');
+var books = require('./lib/books');
 var parser = require('body-parser');
 
 var app = express();
@@ -63,10 +63,11 @@ app.get('/delete', function (req, res) {
     });
 });
 
-app.get('/', function (req, res) {
-    var showList = books.getAll();
-    res.render('home', {
-        books: showList
+app.get('/', function (req, res, next) {
+    books.getAll().then(function (items) {
+        return res.render('home', { books: items });
+    }).catch(function (err) {
+        return next(err);
     });
 });
 

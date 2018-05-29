@@ -1,56 +1,30 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-var books = [{
-    title: 'HTML & CSS: Design and Build Interfaces',
-    author: 'Jon Duckett',
-    pubDate: 2011
-}, {
-    title: 'JavaScript and JQuery: Interactive Front-End Web Development',
-    author: 'Jon Duckett',
-    pubDate: 2013
-}, {
-    title: 'Designing Interfaces',
-    author: 'Jennifer Tidwell',
-    pubDate: 2005
-}, {
-    title: 'Mastering Responsive Web Design with HTML5 and CSS3',
-    author: 'Ricardo Zea',
-    pubDate: 2015
-}, {
-    title: 'Python Programming: An Introduction to Computer Science',
-    author: 'John M. Zelle',
-    pubDate: 2004
-}, {
-    title: 'Guide to UNIX Using Linux, 4th ed.',
-    author: 'Michael Palmer',
-    pubDate: 2007
-}, {
-    title: 'The Elements of User Experience',
-    author: 'Jesse James Garrett',
-    pubDate: 2015
-}];
+// use Book model from db
+var Book = require('../models/Book');
 
-// returns an array of all book objects
-// @param none
+// returns array that contains all book objects
 var getAll = function getAll() {
-    return books;
+    return Book.find({}, function (err, result) {
+        return err ? err : result;
+    });
 };
 
-// returns a single book based on title (exact match)
-// @param book title
+// returns a single book object based on title (exact match)
 var get = function get(x) {
-    var book = books.filter(function (book) {
-        return book.title.toLowerCase() == x;
+    return Book.find({ title: x }, function (err, result) {
+        return err ? err : result;
     });
+};
+
+/* {
+    let book = books.filter(book => book.title.toLowerCase() == x);
     if (book.length) {
         return book[0];
     } else {
         return false;
-    }
-};
+    } 
+}; */
 
 // removes a book from the array
 // @param book title
@@ -89,7 +63,4 @@ var add = function add(x) {
     }
 };
 
-exports.get = get;
-exports.getAll = getAll;
-exports.remove = remove;
-exports.add = add;
+module.exports = { get: get, getAll: getAll, remove: remove, add: add };

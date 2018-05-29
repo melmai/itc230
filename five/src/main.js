@@ -1,6 +1,6 @@
 const express = require('express');
 const handlebars = require('express-handlebars').create({ defaultLayout: 'main' });
-const books = require('./lib/books.js');
+const books = require('./lib/books');
 const parser = require('body-parser');
 
 const app = express();
@@ -16,22 +16,13 @@ app.get('/about', (req, res) => {
     res.render('about');
 });
 
-app.get('/detail', (req, res) => {
-    let title = req.query.title;
-    let getDetails = books.get(title);
-    res.render('detail', {
-        title: title,
-        result: getDetails
-    });
-});
-
-app.post('/detail', (req, res) => {
-    let title = req.body.title;
-    let getDetails = books.get(title.toLowerCase());
-    res.render('detail', {
-        title: title,
-        result: getDetails
-    });
+app.all('/detail', (req, res, next) => {
+    books.get(req.body.title)
+        .then(items => res.render('detail', {
+            title: req.body.title || req.query.title,
+            result: items
+        }))
+        .catch((err) => next(err));
 });
 
 app.get('/add', (req, res) => {
@@ -61,11 +52,10 @@ app.get('/delete', (req, res) => {
     });
 });
 
-app.get('/', (req, res) => {
-    let showList = books.getAll();
-    res.render('home', {
-        books: showList,
-    });
+app.get('/', (req, res, next) => {
+    books.getAll()
+        .then(items => res.render('home', { books: items }))
+        .catch(err => next(err));
 });
 
 // 404 Error
