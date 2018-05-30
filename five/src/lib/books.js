@@ -29,33 +29,7 @@ const remove = x => {
 
 const add = x => {
     let newBook = new Book ({ title: x.title, author: x.author, pubDate: Number(x.pubDate) });
-    newBook.save((err) => { if(err) return err; });
-    return newBook;
-    /* let newBook = {
-        title: x.title,
-        author: x.author,
-        pubDate: x.pubDate
-    };
-    
-    let test = books.find(book => book.title == newBook.title);
-    if(test) {
-        return false;
-    } else {
-        books.push(newBook);
-        return books;
-    } */
+    newBook.save((err) => err ? err : newBook );
 };
 
-const count = () => {
-    Book.count((err, count) => { 
-        if(err) {
-            console.error(err);
-            return err;
-        } else {
-            console.log(count);
-            return count;
-        }
-    }); 
-};
-
-module.exports =  { get, getAll, remove, add, count };
+module.exports =  { get, getAll, remove, add };

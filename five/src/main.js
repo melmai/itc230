@@ -1,7 +1,6 @@
 const express = require('express');
 const handlebars = require('express-handlebars').create({ defaultLayout: 'main' });
 const books = require('./lib/books');
-const Book = require('./models/Book');
 const parser = require('body-parser');
 
 const app = express();
@@ -46,12 +45,11 @@ app.get('/delete', (req, res) => {
     books.remove(req.query.title);
     res.render('delete', {
         title: req.query.title,
-        count: books.count()
     });
 });
 
 app.get('/', (req, res, next) => {
-    books.getAll()
+    books.getAll()  
         .then(items => res.render('home', { books: items }))
         .catch(err => next(err));
 });
