@@ -1,6 +1,7 @@
 const express = require('express');
 const handlebars = require('express-handlebars').create({ defaultLayout: 'main' });
 const books = require('./lib/books');
+const Book = require('./models/Book');
 const parser = require('body-parser');
 
 const app = express();
@@ -33,9 +34,8 @@ app.post('/add', (req, res) => {
     let title = req.body.title || '';
     let author = req.body.author || '';
     let pubDate = req.body.pubDate || '';
-    let addBook = books.add({title, author, pubDate});
+    books.add({ title, author, pubDate });
     res.render('add', {
-        books: addBook,
         title: title,
         author: author,
         pubDate: pubDate
@@ -43,12 +43,10 @@ app.post('/add', (req, res) => {
 });
 
 app.get('/delete', (req, res) => {
-    let title = req.query.title;
-    let deleteBook = books.remove(title.toLowerCase());
+    books.remove(req.query.title);
     res.render('delete', {
-        title: title,
-        books: deleteBook.book,
-        count: deleteBook.count
+        title: req.query.title,
+        count: books.count()
     });
 });
 
