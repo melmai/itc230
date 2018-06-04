@@ -84,4 +84,4 @@ const add = (x) => {
     }
 };
 
-export { get, getAll, remove, add };
+module.exports = { get, getAll, remove, add };

@@ -79,4 +79,4 @@ const add = (title, author, pubDate) => {
     return books;
 };
 
-export { get, getAll, remove, add };
+module.exports = { get, getAll, remove, add };
