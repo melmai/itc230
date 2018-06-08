@@ -15,16 +15,8 @@ app.use('/api', require('cors')()); // set Access-Control-Allow-Origin header fo
 
 // routing
 
-app.get('/', (req, res, next) => {
-    books.getAll()
-        .then(books => JSON.stringify(books))
-        .then(items => {
-            res.render('home', {
-                books: items,
-                layout: null
-            });
-        })
-        .catch(err => next(err));
+app.get('/', (req, res) => {
+    res.render('home', { layout: null });
 });
 
 app.get('/about', (req, res) => {
