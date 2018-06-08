@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Assignment 7</title>
+
+    <!-- React Library -->
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <!-- React DOM Library -->
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <!-- Babel Library -->
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+</head>
+
+<body>
+    <div id="app">React not rendering</div>
+
+    <script type="text/babel">
+
+        class BookList extends React.Component {
+            // constructor function
+            constructor(props) {
+                super(props);
+        
+                // set state 
+                this.state = {
+                    books: [],
+                    selected: null
+                };
+
+                this.showBook = this.showBook.bind(this);
+                this.resetData = this.resetData.bind(this);
+            }
+
+            // code to run when page loads
+            componentDidMount() {
+                fetch('/api/books/')
+                .then(response => response.json())
+                .then(responseData => {
+                    this.setState({
+                        books: responseData
+                    });
+                })
+                .catch((err) => {
+                    console.log('Fetching and parsing data error', err);
+                });
+            }
+
+            showBook(id, e) {
+                e.preventDefault();
+                let books = this.state.books;
+                books = books.find((book) => book._id === id);
+                this.setState({
+                    selected: books
+                });
+            }
+
+            resetData() {
+                this.setState({
+                    selected: null
+                });
+            }
+
+            render() {
+                if (this.state.selected) {
+                    return(
+                        <table className="table">
+                            <tbody>
+                                <tr>
+                                    <td>Title</td>
+                                    <td>{this.state.selected.title}</td>
+                                </tr>
+                                <tr>
+                                    <td>Author</td>
+                                    <td>{this.state.selected.author}</td>
+                                </tr>
+                                <tr>
+                                    <td>Publishing Date</td>
+                                    <td>{this.state.selected.pubDate}</td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#" onClick={this.resetData}>Back to Book List</a></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    );
+                } else if (this.state.books.length) {
+                    return(
+                        <table className="table">
+                            <thead className="thead-dark">
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {this.state.books.map((item) => {
+                                    return (
+                                        <tr key={item._id}>
+                                            <td><a href="#" onClick={(e) => this.showBook(item._id, e)}>{item.title}</a></td>
+                                            <td>{item.author}</td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    );                 
+                } else {
+                    return <h2>Whoopsies</h2>
+                }
+            }
+        }
+
+        ReactDOM.render(<BookList />, document.getElementById('app'));
+    </script>
+</body>
+
+</html>
