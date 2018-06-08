@@ -12,23 +12,16 @@ app.set('port', process.env.PORT || 3000);
 app.use(express.static(__dirname + '/public'));
 app.use(parser.urlencoded({ extended: true }));
 app.use('/api', require('cors')()); // set Access-Control-Allow-Origin header for api route
+app.use(parser.json());
 
 // routing
 
-app.get('/', (req, res, next) => {
-    books.getAll()
-        .then(books => JSON.stringify(books))
-        .then(items => {
-            res.render('home', {
-                books: items,
-                layout: null
-            });
-        })
-        .catch(err => next(err));
+app.get('/', (req, res) => {
+    res.render('home', { layout: null });
 });
 
-app.get('/about', (req, res) => {
-    res.render('about');
+app.get('/add', (req, res) => {
+    res.render('add');
 });
 
 app.all('/detail', (req, res, next) => {
@@ -40,9 +33,7 @@ app.all('/detail', (req, res, next) => {
         .catch((err) => next(err));
 });
 
-app.get('/add', (req, res) => {
-    res.render('add');
-});
+
 
 app.post('/add', (req, res) => {
     let title = req.body.title || '';
@@ -102,9 +93,9 @@ app.get('/api/book/:title', (req, res) => {
     });
 });
 
-app.delete('/api/book/delete/:title', (req, res) => {
-    let title = req.params.title;
-    Book.remove({ 'title': title }, (err, result) => {
+app.delete('/api/book/delete/:id', (req, res) => {
+    let id = req.params.id;
+    Book.remove({ '_id' : id }, (err, result) => {
         if(err) return err;
         if(result.n) {
             res.json({ 'message': 'Book deleted' });

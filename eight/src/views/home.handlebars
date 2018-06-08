@@ -35,41 +35,54 @@
                     selected: null
                 };
 
+                // bind events to this
                 this.showBook = this.showBook.bind(this);
                 this.resetData = this.resetData.bind(this);
+                this.deleteBook = this.deleteBook.bind(this);
             }
 
-            // code to run when page loads
+            // code to run when page loads; get all books
             componentDidMount() {
                 fetch('/api/books/')
                 .then(response => response.json())
-                .then(responseData => {
-                    this.setState({
-                        books: responseData
-                    });
+                .then(responseData => { this.setState({ books: responseData } )})
+                .catch((err) => { console.log('Fetching and parsing data error', err) });
+            }
+
+            // show single book details
+            showBook(id, e) {
+                e.preventDefault();
+                const book = this.state.books.find((book) => book._id === id);
+                this.setState({ selected: book });
+            }
+
+            // reset to list view
+            resetData() {
+                this.setState({ selected: null });
+            }
+
+            // add book
+
+            // delete book
+            deleteBook(id, e) {
+                e.preventDefault();
+                fetch(`/api/book/delete/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                })
+                .then((data) => {
+                    const books = this.state.books.filter((book) => id !== book._id);
+                    this.setState({ books: books });
+                    this.resetData();
                 })
                 .catch((err) => {
                     console.log('Fetching and parsing data error', err);
                 });
-            }
-
-            showBook(id, e) {
-                e.preventDefault();
-                let books = this.state.books;
-                books = books.find((book) => book._id === id);
-                this.setState({
-                    selected: books
-                });
-            }
-
-            resetData() {
-                this.setState({
-                    selected: null
-                });
+                
             }
 
             render() {
-                if (this.state.selected) {
+                if(this.state.selected) {
                     return(
                         <table className="table">
                             <tbody>
@@ -86,7 +99,10 @@
                                     <td>{this.state.selected.pubDate}</td>
                                 </tr>
                                 <tr>
-                                    <td><a href="#" onClick={this.resetData}>Back to Book List</a></td>
+                                    <td>
+                                        <a href="#" onClick={this.resetData}>Back to Book List</a> | 
+                                        <a href="#" onClick={(e) => this.deleteBook(this.state.selected._id, e)}>Delete Book</a>
+                                    </td>
                                     <td></td>
                                 </tr>
                             </tbody>
