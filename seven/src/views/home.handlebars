@@ -53,15 +53,16 @@
                 });
             }
 
+            // show book based on id
             showBook(id, e) {
                 e.preventDefault();
-                let books = this.state.books;
-                books = books.find((book) => book._id === id);
+                let book = this.state.books.find((book) => book._id === id);
                 this.setState({
-                    selected: books
+                    selected: book
                 });
             }
 
+            // remove selected book to show list
             resetData() {
                 this.setState({
                     selected: null
@@ -70,6 +71,7 @@
 
             render() {
                 if (this.state.selected) {
+                // if there is a book selected, show its details
                     return(
                         <table className="table">
                             <tbody>
@@ -93,6 +95,7 @@
                         </table>
                     );
                 } else if (this.state.books.length) {
+                // else if books is set to an array, show list of books
                     return(
                         <table className="table">
                             <thead className="thead-dark">
@@ -115,6 +118,7 @@
                         </table>
                     );                 
                 } else {
+                // else error occurred!
                     return <h2>Whoopsies</h2>
                 }
             }
