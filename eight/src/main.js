@@ -122,5 +122,3 @@ app.use((err, req, res) => {
 app.listen(app.get('port'), () => { 
     console.log('Express started on http://localhost:' + app.get('port') + '; Ctrl-C to end.');
 });
-
-

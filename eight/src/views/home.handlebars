@@ -29,13 +29,18 @@
                 super(props);
         
                 // set state 
-                this.state = { books: [], selected: null };
+                this.state = { 
+                    books: [], 
+                    selected: null,
+                    addBook: false
+                    };
 
                 // bind events to this
                 this.showBook = this.showBook.bind(this);
                 this.resetData = this.resetData.bind(this);
                 this.deleteBook = this.deleteBook.bind(this);
-                this.addBook = this.addBook.bind(this);
+                this.showForm = this.showForm.bind(this);
+                this.hideForm = this.hideForm.bind(this);
             }
 
             // code to run when page loads; get all books
@@ -54,9 +59,10 @@
             }
 
             // reset to list view
-            resetData(e) {
-                e.preventDefault();
-                this.setState({ selected: null });
+            resetData() {
+                this.setState({ 
+                    selected: null,
+                });
             }
 
             // delete book
@@ -74,19 +80,34 @@
                 .catch((err) => { console.log('Fetching and parsing data error', err) });                
             }
 
-            // add book
-            addBook(e) {
+            // show form
+            showForm(e) {
                 e.preventDefault();
+                this.setState({ addBook: true });
+            }
+
+            //remove form after submission
+            hideForm(newBook) {
+                const books = this.state.books.push(newBook);
+                console.log(books);
+                this.setState({ 
+                    addBook: false,
+                    //books: books
+                });
             }
 
             render() {
-                if (this.state.selected) {
+                if(this.state.addBook) {
+                    return(
+                        <BookForm action={this.hideForm} />
+                    );
+                } else if (this.state.selected) {
                     return(
                         <div>
                             <Nav />
                             <table className="table">
                                 <tbody>
-                                    <tr>
+                                    <tr key={this.state.selected._id}>
                                         <td>Title</td>
                                         <td>{this.state.selected.title}</td>
                                     </tr>
@@ -100,7 +121,7 @@
                                     </tr>
                                     <tr>
                                         <td>
-                                            <a href="#" onClick={(e) => this.resetData(e)}>Back to Book List</a> | <a href="#" onClick={(e) => this.deleteBook(this.state.selected._id, e)}>Delete Book</a>
+                                            <a href="#" onClick={this.resetData}>Back to Book List</a> | <a href="#" onClick={(e) => this.deleteBook(this.state.selected._id, e)}>Delete Book</a>
                                         </td>
                                         <td></td>
                                     </tr>
@@ -131,6 +152,7 @@
                                     })}
                                 </tbody>
                             </table>
+                            <a href="#" onClick={(e) => this.showForm(e)}>Add Book</a>
                         </div>
                     );                 
                 } else {
@@ -156,7 +178,7 @@
                                 </a>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" href="/add">Add Book</a>
+                                <a className="nav-link" href="#" onClick={(e) => this.showForm(e)}>Add Book</a>
                             </li>
                         </ul>
                         <form className="form-inline my-2 my-lg-0" method="post" action="/detail">
@@ -167,6 +189,67 @@
                 </nav>
             );
         } 
+
+        class BookForm extends React.Component {
+            constructor(props) {
+                super(props);
+
+                this.state = {
+                    title: '',
+                    author: '',
+                    pubDate: 0
+                };
+
+                this.onInputChange = this.onInputChange.bind(this);
+                this.addBook = this.addBook.bind(this);
+            }
+
+            onInputChange(e) {
+                const key = e.target.name;
+                const value = e.target.value; 
+                this.setState({ [key]: value });
+            }
+
+            addBook(e) {
+                e.preventDefault();
+                const newBook = {
+                    title: this.state.title,
+                    author: this.state.author,
+                    pubDate: this.state.pubDate,
+                };
+
+                fetch('/api/books', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newBook)
+                })
+                .then(res => res.json())
+                .then((data) => { this.props.action(newBook) })
+                .catch((err) => { console.log('Database Error!', err) });                
+            }
+
+            render() {
+                return(
+                    <form onSubmit={(e) => this.addBook(e)}>
+                        <div className="form-group">
+                            <label htmlFor="title">Title</label>
+                            <input type="text" className="form-control" name="title" onChange={(e) => this.onInputChange(e)} />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="author">Author</label>
+                            <input type="text" className="form-control" name="author" onChange={(e) => this.onInputChange(e)} />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="pubDate">Publishing Date</label>
+                            <input type="text" className="form-control" name="pubDate" onChange={(e) => this.onInputChange(e)} />
+                        </div>
+
+                        <button type="submit" className="btn btn-primary">Add Book</button>
+                    </form>
+                );
+            }
+        }
+            
 
         ReactDOM.render(<App />, document.getElementById('app'));
     </script>
