@@ -23,22 +23,19 @@
     <div id="app">React not rendering</div>
 
     <script type="text/babel">
-
-        class BookList extends React.Component {
+        class App extends React.Component {
             // constructor function
             constructor(props) {
                 super(props);
         
                 // set state 
-                this.state = {
-                    books: [],
-                    selected: null
-                };
+                this.state = { books: [], selected: null };
 
                 // bind events to this
                 this.showBook = this.showBook.bind(this);
                 this.resetData = this.resetData.bind(this);
                 this.deleteBook = this.deleteBook.bind(this);
+                this.addBook = this.addBook.bind(this);
             }
 
             // code to run when page loads; get all books
@@ -57,11 +54,10 @@
             }
 
             // reset to list view
-            resetData() {
+            resetData(e) {
+                e.preventDefault();
                 this.setState({ selected: null });
             }
-
-            // add book
 
             // delete book
             deleteBook(id, e) {
@@ -75,60 +71,67 @@
                     this.setState({ books: books });
                     this.resetData();
                 })
-                .catch((err) => {
-                    console.log('Fetching and parsing data error', err);
-                });
-                
+                .catch((err) => { console.log('Fetching and parsing data error', err) });                
+            }
+
+            // add book
+            addBook(e) {
+                e.preventDefault();
             }
 
             render() {
-                if(this.state.selected) {
+                if (this.state.selected) {
                     return(
-                        <table className="table">
-                            <tbody>
-                                <tr>
-                                    <td>Title</td>
-                                    <td>{this.state.selected.title}</td>
-                                </tr>
-                                <tr>
-                                    <td>Author</td>
-                                    <td>{this.state.selected.author}</td>
-                                </tr>
-                                <tr>
-                                    <td>Publishing Date</td>
-                                    <td>{this.state.selected.pubDate}</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a href="#" onClick={this.resetData}>Back to Book List</a> | 
-                                        <a href="#" onClick={(e) => this.deleteBook(this.state.selected._id, e)}>Delete Book</a>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div>
+                            <Nav />
+                            <table className="table">
+                                <tbody>
+                                    <tr>
+                                        <td>Title</td>
+                                        <td>{this.state.selected.title}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Author</td>
+                                        <td>{this.state.selected.author}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Publishing Date</td>
+                                        <td>{this.state.selected.pubDate}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <a href="#" onClick={(e) => this.resetData(e)}>Back to Book List</a> | <a href="#" onClick={(e) => this.deleteBook(this.state.selected._id, e)}>Delete Book</a>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     );
                 } else if (this.state.books.length) {
                     return(
-                        <table className="table">
-                            <thead className="thead-dark">
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Author</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {this.state.books.map((item) => {
-                                    return (
-                                        <tr key={item._id}>
-                                            <td><a href="#" onClick={(e) => this.showBook(item._id, e)}>{item.title}</a></td>
-                                            <td>{item.author}</td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                        <div>
+                            <Nav />
+                            <table className="table">
+                                <thead className="thead-dark">
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Author</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {this.state.books.map((item) => {
+                                        return (
+                                            <tr key={item._id}>
+                                                <td><a href="#" onClick={(e) => this.showBook(item._id, e)}>{item.title}</a></td>
+                                                <td>{item.author}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
                     );                 
                 } else {
                     return <h2>Whoopsies</h2>
@@ -136,7 +139,36 @@
             }
         }
 
-        ReactDOM.render(<BookList />, document.getElementById('app'));
+        function Nav() {
+            return(
+                <nav className="navbar navbar-expand-lg navbar-light bg-light">
+                    <a className="navbar-brand" href="/">My Library</a>
+                    <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                        <span className="navbar-toggler-icon"></span>
+                    </button>
+                
+                    <div className="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul className="navbar-nav mr-auto">
+                            <li className="nav-item">
+                                <a className="nav-link" href="/">Home
+                                    <span className="sr-only">(current)</span>
+                                </a>
+                            </li>
+                            <li className="nav-item">
+                                <a className="nav-link" href="/add">Add Book</a>
+                            </li>
+                        </ul>
+                        <form className="form-inline my-2 my-lg-0" method="post" action="/detail">
+                            <input className="form-control mr-sm-2" type="search" placeholder="Search by Title" aria-label="Search by Title" id="title" name="title" />
+                            <button className="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                        </form>
+                    </div>
+                </nav>
+            );
+        } 
+
+        ReactDOM.render(<App />, document.getElementById('app'));
     </script>
 </body>
 
