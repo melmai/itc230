@@ -1,6 +1,5 @@
 const express = require('express');
 const handlebars = require('express-handlebars').create({ defaultLayout: 'main' });
-const books = require('./lib/books');
 const Book = require('./models/Book');
 const parser = require('body-parser');
 
@@ -24,36 +23,6 @@ app.get('/add', (req, res) => {
     res.render('add');
 });
 
-app.all('/detail', (req, res, next) => {
-    books.get(req.body.title)
-        .then(items => res.render('detail', {
-            title: req.body.title || req.query.title,
-            result: items
-        }))
-        .catch((err) => next(err));
-});
-
-
-
-app.post('/add', (req, res) => {
-    let title = req.body.title || '';
-    let author = req.body.author || '';
-    let pubDate = req.body.pubDate || '';
-    books.add({ title, author, pubDate });
-    res.render('add', {
-        title: title,
-        author: author,
-        pubDate: pubDate
-    });
-});
-
-app.get('/delete', (req, res) => {
-    books.remove(req.query.title);
-    res.render('delete', {
-        title: req.query.title,
-    });
-});
-
 // API Routing
 app.get('/api/add', (req, res) => {
     res.render('api');
@@ -73,7 +42,7 @@ app.post('/api/books', (req, res) => {
     let newBook = new Book();
     newBook.title = req.body.title || '';
     newBook.author = req.body.author || '';
-    newBook.pubDate = req.body.pubdate || '';
+    newBook.pubDate = req.body.pubDate || '';
 
     newBook.save((err) => {
         if (err) res.send(err);

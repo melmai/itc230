@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Assignment 7</title>
+    <title>Assignment 8</title>
 
     <!-- React Library -->
     <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
@@ -36,6 +36,7 @@
                     };
 
                 // bind events to this
+                this.showAll = this.showAll.bind(this);
                 this.showBook = this.showBook.bind(this);
                 this.resetData = this.resetData.bind(this);
                 this.deleteBook = this.deleteBook.bind(this);
@@ -45,6 +46,11 @@
 
             // code to run when page loads; get all books
             componentDidMount() {
+                this.showAll();
+            }
+
+            // show all books
+            showAll() {
                 fetch('/api/books/')
                 .then(response => response.json())
                 .then(responseData => { this.setState({ books: responseData } )})
@@ -87,12 +93,10 @@
             }
 
             //remove form after submission
-            hideForm(newBook) {
-                const books = this.state.books.push(newBook);
-                console.log(books);
+            hideForm() {
+                this.showAll();
                 this.setState({ 
                     addBook: false,
-                    //books: books
                 });
             }
 
@@ -215,16 +219,21 @@
                 const newBook = {
                     title: this.state.title,
                     author: this.state.author,
-                    pubDate: this.state.pubDate,
+                    pubDate: parseInt(this.state.pubDate),
                 };
 
+                console.log(JSON.stringify(newBook));
                 fetch('/api/books', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(newBook)
                 })
-                .then(res => res.json())
-                .then((data) => { this.props.action(newBook) })
+                .then(res => {
+                    res.json();
+                })
+                .then((data) => { 
+                    this.props.action(); 
+                })
                 .catch((err) => { console.log('Database Error!', err) });                
             }
 
@@ -241,7 +250,7 @@
                         </div>
                         <div className="form-group">
                             <label htmlFor="pubDate">Publishing Date</label>
-                            <input type="text" className="form-control" name="pubDate" onChange={(e) => this.onInputChange(e)} />
+                            <input type="number" className="form-control" name="pubDate" onChange={(e) => this.onInputChange(e)} />
                         </div>
 
                         <button type="submit" className="btn btn-primary">Add Book</button>
