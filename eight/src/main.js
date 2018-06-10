@@ -8,8 +8,8 @@ app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
 app.set('port', process.env.PORT || 3000);
-app.use(express.static(__dirname + '/public'));
-app.use(parser.urlencoded({ extended: true }));
+//app.use(express.static(__dirname + '/public'));
+//app.use(parser.urlencoded({ extended: true }));
 app.use('/api', require('cors')()); // set Access-Control-Allow-Origin header for api route
 app.use(parser.json());
 
