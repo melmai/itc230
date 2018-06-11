@@ -51,7 +51,11 @@
             }
 
             // show all books
-            showAll() {
+            showAll(e) {
+                if(e) {
+                    e.preventDefault();
+                    this.setState({ selected: null });
+                }
                 fetch('/api/books/')
                 .then(response => response.json())
                 .then(responseData => { this.setState({ books: responseData } )})
@@ -109,14 +113,14 @@
                 if(this.state.addBook) {
                     return(
                         <div>
-                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} />
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
                             <BookForm action={this.hideForm} />
                         </div>
                     );
                 } else if (this.state.selected) {
                     return(
                         <div>
-                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} />
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
                             <table className="table">
                                 <tbody>
                                     <tr key={this.state.selected._id}>
@@ -145,7 +149,7 @@
                 } else if (this.state.books.length) {
                     return(
                         <div>
-                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} />
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
                             <table className="table">
                                 <thead className="thead-dark">
                                     <tr>
@@ -203,7 +207,7 @@
             render() {
                 return(
                     <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                        <a className="navbar-brand" href="/">My Library</a>
+                        <a className="navbar-brand" href="#" onClick={this.props.goHome}>My Library</a>
                         <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                             aria-expanded="false" aria-label="Toggle navigation">
                             <span className="navbar-toggler-icon"></span>
@@ -212,7 +216,7 @@
                         <div className="collapse navbar-collapse" id="navbarSupportedContent">
                             <ul className="navbar-nav mr-auto">
                                 <li className="nav-item">
-                                    <a className="nav-link" href="/">Home
+                                    <a className="nav-link" href="#" onClick={this.props.goHome}>Home
                                         <span className="sr-only">(current)</span>
                                     </a>
                                 </li>
