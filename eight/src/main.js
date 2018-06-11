@@ -28,6 +28,7 @@ app.get('/api/add', (req, res) => {
     res.render('api');
 });
 
+// READ (get all)
 app.get('/api/books', (req, res) => {
     Book.find((err, results) => {
         if (results) {
@@ -38,7 +39,25 @@ app.get('/api/books', (req, res) => {
     });
 });
 
-app.post('/api/books', (req, res) => {
+// READ (get one)
+app.get('/api/book/:title', (req, res) => {
+    let title = req.params.title;
+    Book.find({
+        'title': title
+    }, (err, result) => {
+        if (err) return err;
+        if (result) {
+            res.json(result);
+        } else {
+            res.json({
+                'message': 'No book found!'
+            });
+        }
+    });
+});
+
+// CREATE
+app.post('/api/books/add', (req, res) => {
     let newBook = new Book();
     newBook.title = req.body.title || '';
     newBook.author = req.body.author || '';
@@ -50,18 +69,21 @@ app.post('/api/books', (req, res) => {
     });
 });
 
-app.get('/api/book/:title', (req, res) => {
-    let title = req.params.title;
-    Book.find({'title': title}, (err, result) => {
-        if(err) return err;
-        if(result) {
-            res.json(result);
-        } else {
-            res.json({ 'message': 'No book found!' });
-        }
+// UPDATE
+app.post('/api/book/update/:id', (req, res) => {
+    let updatedBook = new Book();
+    updatedBook.title = req.body.title || '';
+    updatedBook.author = req.body.author || '';
+    updatedBook.pubDate = req.body.pubDate || '';
+
+    updatedBook.save((err) => {
+        if (err) res.send(err);
+        res.json({ 'message': 'Book updated!' });
     });
 });
 
+
+// DELETE
 app.delete('/api/book/delete/:id', (req, res) => {
     let id = req.params.id;
     Book.remove({ '_id' : id }, (err, result) => {

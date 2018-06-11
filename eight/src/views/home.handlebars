@@ -295,6 +295,31 @@
             }
         } 
 
+        function TableList(props) {
+            return(
+                <table className="table">
+                    <thead className="thead-dark">
+                        <tr>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {this.state.searchResults.map((item) => {
+                            return (
+                                <tr key={item._id}>
+                                    <td><a href="#" onClick={(e) => this.showBook(item._id, e)}>{item.title}</a></td>
+                                    <td>{item.author}</td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            );
+        }
+    
+
         class BookForm extends React.Component {
             constructor(props) {
                 super(props);
@@ -324,7 +349,7 @@
                 };
 
                 console.log(JSON.stringify(newBook));
-                fetch('/api/books', {
+                fetch('/api/books/add', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(newBook)
