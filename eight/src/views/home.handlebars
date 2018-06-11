@@ -32,7 +32,8 @@
                 this.state = { 
                     books: [], 
                     selected: null,
-                    addBook: false
+                    addBook: false,
+                    searchResults: []
                 };
 
                 // bind events to this
@@ -103,11 +104,10 @@
             }
 
             searchTitle(title) {
-                console.log(title);
+                //this.showAll();
                 const pattern = new RegExp(title, 'i');
-                const books = this.state.books.filter(book => book.title.match(pattern)); 
-                console.log(books);
-                this.setState({ books: books });
+                const results = this.state.books.filter(book => book.title.match(pattern)); 
+                this.setState({ searchResults: results });
             }
 
             render() {
@@ -139,12 +139,39 @@
                                     <tr>
                                         <td>
                                             <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={this.resetData}>Back to Book List</button>
-                                            <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.deleteBook(this.state.selected._id, e)}>Delete Book</button>
+                                            <button className="btn btn-outline-danger my-2 my-sm-0" href="#" onClick={(e) => this.deleteBook(this.state.selected._id, e)}>Delete Book</button>
                                         </td>
                                         <td></td>
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+                    );
+                } else if (this.state.searchResults.length) {
+                    return(
+                        <div>
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
+                            <table className="table">
+                                <thead className="thead-dark">
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Author</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {this.state.searchResults.map((item) => {
+                                        return (
+                                            <tr key={item._id}>
+                                                <td><a href="#" onClick={(e) => this.showBook(item._id, e)}>{item.title}</a></td>
+                                                <td>{item.author}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                            <button className="btn btn-outline-primary my-2 my-sm-0" href="#" onClick={(e) => this.showForm(e)}>Add Book</button>
+                            <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showAll(e)}>Back to List</button>
                         </div>
                     );
                 } else if (this.state.books.length) {
@@ -170,7 +197,7 @@
                                     })}
                                 </tbody>
                             </table>
-                            <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showForm(e)}>Add Book</button>
+                            <button className="btn btn-outline-primary my-2 my-sm-0" href="#" onClick={(e) => this.showForm(e)}>Add Book</button>
                             <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showAll(e)}>Back to List</button>
                         </div>
                     );                 
