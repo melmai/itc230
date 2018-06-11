@@ -33,7 +33,8 @@
                     books: [], 
                     selected: null,
                     addBook: false,
-                    searchResults: []
+                    searchResults: [],
+                    query: false
                 };
 
                 // bind events to this
@@ -55,7 +56,11 @@
             showAll(e) {
                 if(e) {
                     e.preventDefault();
-                    this.setState({ selected: null });
+                    this.setState({ 
+                        selected: null,
+                        searchResults: [],
+                        query: false
+                    });
                     document.getElementById('title-search').value = '';
                 }
                 fetch('/api/books/')
@@ -106,8 +111,12 @@
             searchTitle(title) {
                 //this.showAll();
                 const pattern = new RegExp(title, 'i');
-                const results = this.state.books.filter(book => book.title.match(pattern)); 
-                this.setState({ searchResults: results });
+                let results = this.state.books.filter(book => book.title.match(pattern)); 
+                this.setState({ 
+                    searchResults: results,
+                    query: true
+                });
+                console.log(typeof(this.state.searchResults));
             }
 
             render() {
@@ -138,7 +147,7 @@
                                     </tr>
                                     <tr>
                                         <td>
-                                            <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={this.resetData}>Back to Book List</button>
+                                            <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={this.resetData}>Back</button>
                                             <button className="btn btn-outline-danger my-2 my-sm-0" href="#" onClick={(e) => this.deleteBook(this.state.selected._id, e)}>Delete Book</button>
                                         </td>
                                         <td></td>
@@ -147,6 +156,31 @@
                             </table>
                         </div>
                     );
+                } else if (this.state.query && this.state.searchResults.length === 0) {
+                    return(
+                        <div>
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
+                            <table className="table">
+                                <thead className="thead-dark">
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Author</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>No Results Found!</td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <button className="btn btn-outline-primary my-2 my-sm-0" href="#" onClick={(e) => this.showForm(e)}>Add Book</button>
+                            <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showAll(e)}>Back to List</button>
+                        </div>
+                    ); 
+                        
                 } else if (this.state.searchResults.length) {
                     return(
                         <div>
@@ -198,7 +232,7 @@
                                 </tbody>
                             </table>
                             <button className="btn btn-outline-primary my-2 my-sm-0" href="#" onClick={(e) => this.showForm(e)}>Add Book</button>
-                            <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showAll(e)}>Back to List</button>
+                            <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showAll(e)}>Back to Library</button>
                         </div>
                     );                 
                 } else {
