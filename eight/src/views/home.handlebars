@@ -55,6 +55,7 @@
                 if(e) {
                     e.preventDefault();
                     this.setState({ selected: null });
+                    document.getElementById('title-search').value = '';
                 }
                 fetch('/api/books/')
                 .then(response => response.json())
@@ -201,7 +202,6 @@
                 console.log(this.state.search);
                 this.props.search(this.state.search);
                 this.setState({ search: '' });
-                //document.getElementById('title-search').value = '';
             }          
 
             render() {
