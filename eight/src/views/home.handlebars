@@ -7,14 +7,9 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Assignment 8</title>
 
-    <!-- React Library -->
     <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
-    <!-- React DOM Library -->
     <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
-    <!-- Babel Library -->
     <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
-
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
         crossorigin="anonymous">
 </head>
@@ -34,18 +29,21 @@
                     selected: null,
                     editBook: false,
                     searchResults: [],
-                    query: false
+                    query: false,
+                    updated: false,
+                    deleted: false
                 };
 
                 // bind events to this
                 this.showAll = this.showAll.bind(this);
                 this.showBook = this.showBook.bind(this);
-                this.resetData = this.resetData.bind(this);
+                this.showList = this.showList.bind(this);
                 this.deleteBook = this.deleteBook.bind(this);
                 this.showForm = this.showForm.bind(this);
                 this.hideForm = this.hideForm.bind(this);
                 this.searchTitle = this.searchTitle.bind(this);
                 this.updateBook = this.updateBook.bind(this);
+                this.resetState = this.resetState.bind(this);
             }
 
             // code to run when page loads; get all books
@@ -53,22 +51,28 @@
                 this.showAll();
             }
 
+            resetState() {
+                this.setState({ 
+                    books: [],
+                    selected: null,
+                    editBook: false,
+                    searchResults: [],
+                    query: false,
+                    updated: false,
+                    deleted: false
+                });
+                document.getElementById('title-search').value = '';               
+            }
+
             // show all books
             showAll(e) {
-                if(e) {
+                if(e) { 
                     e.preventDefault();
-                    this.setState({ 
-                        books: [],
-                        selected: null,
-                        editBook: false,
-                        searchResults: [],
-                        query: false
-                    });
-                    document.getElementById('title-search').value = '';
+                    this.resetState();
                 }
                 fetch('/api/books/')
                 .then(response => response.json())
-                .then(responseData => { this.setState({ books: responseData } )})
+                .then(responseData => { this.setState({ books: responseData, deleted: false } )})
                 .catch((err) => { console.log('Fetching and parsing data error', err) });
             }
 
@@ -80,8 +84,12 @@
             }
 
             // reset to list view
-            resetData() {
-                this.setState({ selected: null });
+            showList() {
+                this.setState({ 
+                    selected: null, 
+                    updated: false,
+                    deleted: false
+                });
             }
 
             // delete book
@@ -93,8 +101,7 @@
                 })
                 .then((data) => {
                     const books = this.state.books.filter((book) => id !== book._id);
-                    this.setState({ books: books });
-                    this.resetData();
+                    this.setState({ books: books, deleted: true });
                 })
                 .catch((err) => { console.log('Fetching and parsing data error', err) });                
             }
@@ -108,7 +115,17 @@
                     body: JSON.stringify(book)
                 })
                 .then((data) => {
-                    this.showAll();
+                    this.hideForm();
+                    console.log(data);
+                    this.setState({ 
+                        selected: {
+                            _id: book._id,
+                            title: book.title,
+                            author: book.author,
+                            pubDate: book.pubDate,
+                        },
+                        updated: true
+                    });
                 })
                 .catch((err) => { console.log('Database Error!', err) });                
             }
@@ -126,35 +143,44 @@
             }
 
             searchTitle(title) {
-                //this.showAll();
                 const pattern = new RegExp(title, 'i');
                 let results = this.state.books.filter(book => book.title.match(pattern)); 
                 this.setState({ 
                     searchResults: results,
                     query: true
                 });
-                console.log(typeof(this.state.searchResults));
             }
 
             render() {
-                if (this.state.editBook && !this.state.selected) {
+                if (this.state.editBook && !this.state.selected) { // show blank form to add book
                     return(
                         <div>
                             <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
                             <BookForm hideForm={this.hideForm} />
                         </div>
                     );
-                } else if (this.state.editBook) {
+                } else if (this.state.editBook) { // show edit form with autopopulated fields
                     return(
                         <div>
                             <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
                             <BookForm book={this.state.selected} update={this.updateBook} />
                         </div>
                     );
-                } else if (this.state.selected) {
+                } else if (this.state.selected) { // if book selected, show details
+                    let isUpdated = this.state.updated;
+                    if(isUpdated) {
+                        isUpdated = <div className="alert alert-success" role="alert">Successfully updated!</div>;
+                    }
+
+                    let isDeleted = this.state.deleted;
+                    if (isDeleted) {
+                         isDeleted = <div className="alert alert-success" role="alert">Successfully deleted!</div>;                       
+                    }
+                    
                     return(
                         <div>
                             <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
+                            {isUpdated}{isDeleted}
                             <table className="table">
                                 <tbody>
                                     <tr key={this.state.selected._id}>
@@ -171,17 +197,18 @@
                                     </tr>
                                     <tr>
                                         <td>
-                                            <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={this.resetData}>Back</button>
-                                            <button className="btn btn-outline-danger my-2 my-sm-0" href="#" onClick={(e) => this.deleteBook(this.state.selected._id, e)}>Delete Book</button>
-                                            <button className="btn btn-outline-primary my-2 my-sm-0" href="#" onClick={(e) => this.showForm(e)}>Update Book</button>
+                                            
                                         </td>
                                         <td></td>
                                     </tr>
                                 </tbody>
                             </table>
+                            <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showList(e)}>Back</button>
+                            <button className="btn btn-outline-danger my-2 my-sm-0" href="#" onClick={(e) => this.deleteBook(this.state.selected._id, e)}>Delete Book</button>
+                            <button className="btn btn-outline-primary my-2 my-sm-0" href="#" onClick={(e) => this.showForm(e)}>Update Book</button>
                         </div>
                     );
-                } else if (this.state.query && this.state.searchResults.length === 0) {
+                } else if (this.state.query && this.state.searchResults.length === 0) { // inform user if no search results
                     return(
                         <div>
                             <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
@@ -195,7 +222,11 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td colspan="3">No Results Found!</td>
+                                        <td colSpan="3">
+                                            <div className="alert alert-danger" role="alert">
+                                                No results found!
+                                            </div>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -204,7 +235,7 @@
                         </div>
                     ); 
                         
-                } else if (this.state.searchResults.length) {
+                } else if (this.state.searchResults.length) { // show search results 
                     return(
                         <div>
                             <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
@@ -213,7 +244,9 @@
                             <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showAll(e)}>Back to List</button>
                         </div>
                     );
-                } else if (this.state.books.length) {
+                } else if (this.state.books.length) { // show list of books
+
+                    
                     return(
                         <div>
                             <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
@@ -222,7 +255,7 @@
                             <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showAll(e)}>Back to Library</button>
                         </div>
                     );                 
-                } else {
+                } else { // error
                     return <h2>Whoopsies</h2>
                 }
             }
@@ -371,7 +404,6 @@
                     author: this.state.author,
                     pubDate: parseInt(this.state.pubDate)
                 };
-                console.log(JSON.stringify(updatedBook));
                 this.props.update(updatedBook);
             }
 
