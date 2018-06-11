@@ -32,7 +32,7 @@
                 this.state = { 
                     books: [], 
                     selected: null,
-                    addBook: false,
+                    editBook: false,
                     searchResults: [],
                     query: false
                 };
@@ -45,6 +45,7 @@
                 this.showForm = this.showForm.bind(this);
                 this.hideForm = this.hideForm.bind(this);
                 this.searchTitle = this.searchTitle.bind(this);
+                this.updateBook = this.updateBook.bind(this);
             }
 
             // code to run when page loads; get all books
@@ -57,7 +58,9 @@
                 if(e) {
                     e.preventDefault();
                     this.setState({ 
+                        books: [],
                         selected: null,
+                        editBook: false,
                         searchResults: [],
                         query: false
                     });
@@ -96,16 +99,30 @@
                 .catch((err) => { console.log('Fetching and parsing data error', err) });                
             }
 
+            // update book
+            updateBook(book) {
+                console.log('book: ' + JSON.stringify(book));
+                fetch(`/api/book/update/${book._id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(book)
+                })
+                .then((data) => {
+                    this.showAll();
+                })
+                .catch((err) => { console.log('Database Error!', err) });                
+            }
+
             // show form
             showForm(e) {
                 e.preventDefault();
-                this.setState({ addBook: true });
+                this.setState({ editBook: true });
             }
 
             //remove form after submission
             hideForm() {
                 this.showAll();
-                this.setState({ addBook: false });
+                this.setState({ editBook: false });
             }
 
             searchTitle(title) {
@@ -120,11 +137,18 @@
             }
 
             render() {
-                if(this.state.addBook) {
+                if (this.state.editBook && !this.state.selected) {
                     return(
                         <div>
                             <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
-                            <BookForm action={this.hideForm} />
+                            <BookForm hideForm={this.hideForm} />
+                        </div>
+                    );
+                } else if (this.state.editBook) {
+                    return(
+                        <div>
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
+                            <BookForm book={this.state.selected} update={this.updateBook} />
                         </div>
                     );
                 } else if (this.state.selected) {
@@ -149,6 +173,7 @@
                                         <td>
                                             <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={this.resetData}>Back</button>
                                             <button className="btn btn-outline-danger my-2 my-sm-0" href="#" onClick={(e) => this.deleteBook(this.state.selected._id, e)}>Delete Book</button>
+                                            <button className="btn btn-outline-primary my-2 my-sm-0" href="#" onClick={(e) => this.showForm(e)}>Update Book</button>
                                         </td>
                                         <td></td>
                                     </tr>
@@ -170,9 +195,7 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>No Results Found!</td>
-                                        <td></td>
-                                        <td></td>
+                                        <td colspan="3">No Results Found!</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -185,25 +208,7 @@
                     return(
                         <div>
                             <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
-                            <table className="table">
-                                <thead className="thead-dark">
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Author</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {this.state.searchResults.map((item) => {
-                                        return (
-                                            <tr key={item._id}>
-                                                <td><a href="#" onClick={(e) => this.showBook(item._id, e)}>{item.title}</a></td>
-                                                <td>{item.author}</td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
+                            <TableList list={this.state.searchResults} action={(e) => this.showBook(item._id, e)}/>
                             <button className="btn btn-outline-primary my-2 my-sm-0" href="#" onClick={(e) => this.showForm(e)}>Add Book</button>
                             <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showAll(e)}>Back to List</button>
                         </div>
@@ -212,25 +217,7 @@
                     return(
                         <div>
                             <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
-                            <table className="table">
-                                <thead className="thead-dark">
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Author</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {this.state.books.map((item) => {
-                                        return (
-                                            <tr key={item._id}>
-                                                <td><a href="#" onClick={(e) => this.showBook(item._id, e)}>{item.title}</a></td>
-                                                <td>{item.author}</td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
+                            <TableList list={this.state.books} action={this.showBook} />
                             <button className="btn btn-outline-primary my-2 my-sm-0" href="#" onClick={(e) => this.showForm(e)}>Add Book</button>
                             <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showAll(e)}>Back to Library</button>
                         </div>
@@ -306,10 +293,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {this.state.searchResults.map((item) => {
+                        {props.list.map((item) => {
                             return (
                                 <tr key={item._id}>
-                                    <td><a href="#" onClick={(e) => this.showBook(item._id, e)}>{item.title}</a></td>
+                                    <td><a href="#" onClick={(e) => props.action(item._id, e)}>{item.title}</a></td>
                                     <td>{item.author}</td>
                                 </tr>
                             );
@@ -327,12 +314,29 @@
                 this.state = {
                     title: '',
                     author: '',
-                    pubDate: 0
+                    pubDate: '',
+                    id: 0,
+                    update: false
                 };
 
                 this.onInputChange = this.onInputChange.bind(this);
                 this.addBook = this.addBook.bind(this);
+                this.updateBook = this.updateBook.bind(this);
             }
+
+            componentDidMount() {
+                let book = this.props.book;
+                if(book) {
+                    this.setState({
+                        title: book.title,
+                        author: book.author,
+                        pubDate: book.pubDate,
+                        id: book._id,
+                        update: true
+                    });
+                }
+
+            }            
 
             onInputChange(e) {
                 const key = e.target.name;
@@ -355,28 +359,48 @@
                     body: JSON.stringify(newBook)
                 })
                 .then(res => res.json())
-                .then(() => this.props.action())
+                .then(() => this.props.hideForm())
                 .catch((err) => { console.log('Database Error!', err) });                
             }
 
+            updateBook(e) {
+                e.preventDefault();
+                const updatedBook = {
+                    _id: this.state.id,
+                    title: this.state.title,
+                    author: this.state.author,
+                    pubDate: parseInt(this.state.pubDate)
+                };
+                console.log(JSON.stringify(updatedBook));
+                this.props.update(updatedBook);
+            }
+
+            
             render() {
+                let actionLink = () => {
+                    if (this.state.update) {
+                        return((e) => this.updateBook(e));
+                    } else {
+                        return((e) => this.addBook(e));
+                    }
+                }
                 return(
                     <div>
-                        <form onSubmit={(e) => this.addBook(e)}>
+                        <form onSubmit={actionLink()}>
                             <div className="form-group">
                                 <label htmlFor="title">Title</label>
-                                <input type="text" className="form-control" name="title" onChange={(e) => this.onInputChange(e)} />
+                                <input type="text" className="form-control" name="title" value={this.state.title} onChange={(e) => this.onInputChange(e)} />
                             </div>
                             <div className="form-group">
                                 <label htmlFor="author">Author</label>
-                                <input type="text" className="form-control" name="author" onChange={(e) => this.onInputChange(e)} />
+                                <input type="text" className="form-control" name="author" value={this.state.author} onChange={(e) => this.onInputChange(e)} />
                             </div>
                             <div className="form-group">
                                 <label htmlFor="pubDate">Publishing Date</label>
-                                <input type="number" className="form-control" name="pubDate" onChange={(e) => this.onInputChange(e)} />
+                                <input type="number" className="form-control" name="pubDate" value={this.state.pubDate} onChange={(e) => this.onInputChange(e)} />
                             </div>
 
-                            <button type="submit" className="btn btn-primary">Add Book</button>
+                            <button type="submit" className="btn btn-primary">{this.state.update ? 'Update' : 'Add'} Book</button>
                             <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={this.props.action}>Back to Book List</button>
                         </form>
                     </div>
