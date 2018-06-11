@@ -97,34 +97,26 @@
                 this.setState({ addBook: false });
             }
 
-            searchTitle(title, e) {
-                e.preventDefault();
-                fetch(`/api/book/${title}`, {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' },
-                })
-                .then((data) => {
-                    data.json();
-                    console.log(data.json());
-                    //const books = this.state.books.filter((book) => title == book._id);
-                    //this.setState({ books: books });
-                    //this.resetData();
-                })
-                .catch((err) => { console.log('Fetching and parsing data error', err) });                 
+            searchTitle(title) {
+                console.log(title);
+                const pattern = new RegExp(title, 'i');
+                const books = this.state.books.filter(book => book.title.match(pattern)); 
+                console.log(books);
+                this.setState({ books: books });
             }
 
             render() {
                 if(this.state.addBook) {
                     return(
                         <div>
-                            <Nav search={this.searchTitle} add={this.showForm} />
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} />
                             <BookForm action={this.hideForm} />
                         </div>
                     );
                 } else if (this.state.selected) {
                     return(
                         <div>
-                            <Nav search={this.searchTitle} add={this.showForm} />
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} />
                             <table className="table">
                                 <tbody>
                                     <tr key={this.state.selected._id}>
@@ -153,7 +145,7 @@
                 } else if (this.state.books.length) {
                     return(
                         <div>
-                            <Nav search={(e) => this.searchTitle(e)} add={(e) => this.showForm(e)} />
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} />
                             <table className="table">
                                 <thead className="thead-dark">
                                     <tr>
@@ -174,6 +166,7 @@
                                 </tbody>
                             </table>
                             <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showForm(e)}>Add Book</button>
+                            <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showAll(e)}>Back to List</button>
                         </div>
                     );                 
                 } else {
@@ -191,12 +184,21 @@
                 };
                                 
                 this.onInputChange = this.onInputChange.bind(this);
+                this.onSearch = this.onSearch.bind(this);
             }
 
             onInputChange(e) {
                 const value = e.target.value; 
                 this.setState({ search : value });
-            }            
+            }
+
+            onSearch(e) {
+                e.preventDefault();
+                console.log(this.state.search);
+                this.props.search(this.state.search);
+                this.setState({ search: '' });
+                //document.getElementById('title-search').value = '';
+            }          
 
             render() {
                 return(
@@ -218,8 +220,8 @@
                                     <a className="nav-link" href="#" onClick={(e) => this.props.add(e)}>Add Book</a>
                                 </li>
                             </ul>
-                            <form className="form-inline my-2 my-lg-0" onSubmit={(e) => this.props.search(this.state.search, e)}>
-                                <input className="form-control mr-sm-2" type="search" placeholder="Search by Title" aria-label="Search by Title" id="title" name="title" onChange={(e) => this.onInputChange(e)}/>
+                            <form className="form-inline my-2 my-lg-0" onSubmit={(e) => this.onSearch(e)}>
+                                <input className="form-control mr-sm-2" type="search" placeholder="Search by Title" aria-label="Search by Title" id="title-search" name="title" onChange={(e) => this.onInputChange(e)}/>
                                 <button className="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
                             </form>
                         </div>
