@@ -1,20 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Assignment 8</title>
 
-    <!-- React Library -->
     <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
-    <!-- React DOM Library -->
     <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
-    <!-- Babel Library -->
     <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
-
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
         crossorigin="anonymous">
 </head>
@@ -24,55 +18,71 @@
 
     <script type="text/babel">
         class App extends React.Component {
-            // constructor function
             constructor(props) {
                 super(props);
         
                 // set state 
-                this.state = { 
-                    books: [], 
+                this.state = {
+                    books: [],
                     selected: null,
-                    addBook: false
-                    };
+                    editBook: false,
+                    searchResults: [],
+                    query: false,
+                    updated: false,
+                    deleted: false
+                };
 
-                // bind events to this
-                this.showAll = this.showAll.bind(this);
-                this.showBook = this.showBook.bind(this);
-                this.resetData = this.resetData.bind(this);
-                this.deleteBook = this.deleteBook.bind(this);
-                this.showForm = this.showForm.bind(this);
-                this.hideForm = this.hideForm.bind(this);
+                // bind events
+                this.showAll = this.showAll.bind(this);             // show all books in collection
+                this.showBook = this.showBook.bind(this);           // show one book
+                this.showList = this.showList.bind(this);           // show list view
+                this.deleteBook = this.deleteBook.bind(this);       // delete book based on id
+                this.showForm = this.showForm.bind(this);           // show form
+                this.hideForm = this.hideForm.bind(this);           // hide form
+                this.searchTitle = this.searchTitle.bind(this);     // look for book by title
+                this.updateBook = this.updateBook.bind(this);       // update book details
+                this.resetState = this.resetState.bind(this);       // reset state to default values
             }
 
-            // code to run when page loads; get all books
-            componentDidMount() {
+            componentDidMount() { // code to run when page loads; get all books
                 this.showAll();
             }
 
-            // show all books
-            showAll() {
+            resetState() { // set state to default values
+                this.setState({ 
+                    books: [], 
+                    selected: null, 
+                    editBook: false, 
+                    searchResults: [], 
+                    query: false, 
+                    updated: false, 
+                    deleted: false 
+                });
+            }
+
+            showAll(e) { // show all books
+                if(e) { 
+                    e.preventDefault();
+                    this.resetState();
+                }
+
                 fetch('/api/books/')
                 .then(response => response.json())
-                .then(responseData => { this.setState({ books: responseData } )})
+                .then(responseData => { this.setState({ books: responseData, deleted: false } )})
                 .catch((err) => { console.log('Fetching and parsing data error', err) });
             }
 
-            // show single book details
-            showBook(id, e) {
+            showBook(id, e) { // show selected book details
                 e.preventDefault();
                 const book = this.state.books.find((book) => book._id === id);
                 this.setState({ selected: book });
             }
 
-            // reset to list view
-            resetData() {
-                this.setState({ 
-                    selected: null,
-                });
+            showList() { // reset to list view
+                this.setState({ selected: null, updated: false, deleted: false });
             }
 
-            // delete book
-            deleteBook(id, e) {
+            deleteBook(id, e) { // delete book based on id
                 e.preventDefault();
                 fetch(`/api/book/delete/${id}`, {
                     method: 'DELETE',
@@ -80,35 +90,71 @@
                 })
                 .then((data) => {
                     const books = this.state.books.filter((book) => id !== book._id);
-                    this.setState({ books: books });
-                    this.resetData();
+                    this.setState({ books: books, deleted: true });
                 })
                 .catch((err) => { console.log('Fetching and parsing data error', err) });                
             }
 
-            // show form
-            showForm(e) {
-                e.preventDefault();
-                this.setState({ addBook: true });
+            updateBook(book) { // update book based on id
+                fetch(`/api/book/update/${book._id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(book)
+                })
+                .then(() => {
+                    this.hideForm();
+                    this.setState({ 
+                        selected: { 
+                            _id: book._id, 
+                            title: book.title, 
+                            author: book.author, 
+                            pubDate: book.pubDate 
+                        },
+                        updated: true
+                    });
+                })
+                .catch((err) => { console.log('Database Error!', err) });                
             }
 
-            //remove form after submission
-            hideForm() {
+            showForm(e) { // show form to add/edit book
+                e.preventDefault();
+                this.setState({ editBook: true });
+            }
+
+            hideForm() { // hide form after submission
                 this.showAll();
-                this.setState({ 
-                    addBook: false,
-                });
+                this.setState({ editBook: false });
+            }
+
+            searchTitle(title) { // look for books based on title
+                const pattern = new RegExp(title, 'i');
+                const results = this.state.books.filter(book => book.title.match(pattern)); 
+                this.setState({ searchResults: results, query: true });
             }
 
             render() {
-                if(this.state.addBook) {
-                    return(
-                        <BookForm action={this.hideForm} />
-                    );
-                } else if (this.state.selected) {
+                if (this.state.editBook && !this.state.selected) { // show blank form to add book
                     return(
                         <div>
-                            <Nav />
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
+                            <BookForm hideForm={this.hideForm} />
+                        </div>
+                    );
+                } else if (this.state.editBook) { // show edit form with autopopulated fields
+                    return(
+                        <div>
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
+                            <BookForm book={this.state.selected} update={this.updateBook} />
+                        </div>
+                    );
+                } else if (this.state.selected) { // if book selected, show details
+                    const isUpdated = this.state.updated ? <div className="alert alert-success" role="alert">Successfully updated!</div> : false;
+                    const isDeleted = this.state.deleted ? <div className="alert alert-success" role="alert">Successfully deleted!</div> : false;
+                    
+                    return(
+                        <div>
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
+                            {isUpdated}{isDeleted}
                             <table className="table">
                                 <tbody>
                                     <tr key={this.state.selected._id}>
@@ -123,76 +169,123 @@
                                         <td>Publishing Date</td>
                                         <td>{this.state.selected.pubDate}</td>
                                     </tr>
-                                    <tr>
-                                        <td>
-                                            <a href="#" onClick={this.resetData}>Back to Book List</a> | <a href="#" onClick={(e) => this.deleteBook(this.state.selected._id, e)}>Delete Book</a>
-                                        </td>
-                                        <td></td>
-                                    </tr>
                                 </tbody>
                             </table>
+                            <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showList(e)}>Back</button>
+                            <button className="btn btn-outline-danger my-2 my-sm-0" href="#" onClick={(e) => this.deleteBook(this.state.selected._id, e)}>Delete Book</button>
+                            <button className="btn btn-outline-primary my-2 my-sm-0" href="#" onClick={(e) => this.showForm(e)}>Update Book</button>
                         </div>
                     );
-                } else if (this.state.books.length) {
+                } else if (this.state.query && this.state.searchResults.length === 0) { // inform user if no search results
                     return(
                         <div>
-                            <Nav />
-                            <table className="table">
-                                <thead className="thead-dark">
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Author</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {this.state.books.map((item) => {
-                                        return (
-                                            <tr key={item._id}>
-                                                <td><a href="#" onClick={(e) => this.showBook(item._id, e)}>{item.title}</a></td>
-                                                <td>{item.author}</td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                            <a href="#" onClick={(e) => this.showForm(e)}>Add Book</a>
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
+                            <div className="alert alert-danger" role="alert">
+                                No results found!
+                            </div>
+                            <button className="btn btn-outline-primary my-2 my-sm-0" href="#" onClick={(e) => this.showForm(e)}>Add Book</button>
+                            <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showAll(e)}>Back to List</button>
+                        </div>
+                    ); 
+                        
+                } else if (this.state.searchResults.length) { // show search results 
+                    return(
+                        <div>
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
+                            <TableList list={this.state.searchResults} action={this.showBook}/>
+                            <button className="btn btn-outline-primary my-2 my-sm-0" href="#" onClick={(e) => this.showForm(e)}>Add Book</button>
+                            <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showAll(e)}>Back to List</button>
+                        </div>
+                    );
+                } else if (this.state.books.length) { // show list of books
+                    return(
+                        <div>
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
+                            <TableList list={this.state.books} action={this.showBook} />
+                            <button className="btn btn-outline-primary my-2 my-sm-0" href="#" onClick={(e) => this.showForm(e)}>Add Book</button>
+                            <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showAll(e)}>Back to Library</button>
                         </div>
                     );                 
-                } else {
+                } else { // error
                     return <h2>Whoopsies</h2>
                 }
             }
         }
 
-        function Nav() {
-            return(
-                <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                    <a className="navbar-brand" href="/">My Library</a>
-                    <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
-                
-                    <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul className="navbar-nav mr-auto">
-                            <li className="nav-item">
-                                <a className="nav-link" href="/">Home
-                                    <span className="sr-only">(current)</span>
-                                </a>
-                            </li>
-                            <li className="nav-item">
-                                <a className="nav-link" href="#" onClick={(e) => this.showForm(e)}>Add Book</a>
-                            </li>
-                        </ul>
-                        <form className="form-inline my-2 my-lg-0" method="post" action="/detail">
-                            <input className="form-control mr-sm-2" type="search" placeholder="Search by Title" aria-label="Search by Title" id="title" name="title" />
-                            <button className="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-                        </form>
-                    </div>
-                </nav>
-            );
+        class Nav extends React.Component {
+            constructor(props) {
+                super(props);
+
+                this.state = { search: '' };    
+
+                this.onInputChange = this.onInputChange.bind(this);
+                this.onSearch = this.onSearch.bind(this);
+            }
+
+            onInputChange(e) { // change state value as user changes input
+                const value = e.target.value; 
+                this.setState({ search : value });
+            }
+
+            onSearch(e) { // handle user search request
+                e.preventDefault();
+                this.props.search(this.state.search);
+                this.setState({ search: '' });
+            }          
+
+            render() {
+                return(
+                    <nav className="navbar navbar-expand-lg navbar-light bg-light">
+                        <a className="navbar-brand" href="#" onClick={this.props.goHome}>My Library</a>
+                        <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                            <span className="navbar-toggler-icon"></span>
+                        </button>
+                    
+                        <div className="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul className="navbar-nav mr-auto">
+                                <li className="nav-item">
+                                    <a className="nav-link" href="#" onClick={this.props.goHome}>Home
+                                        <span className="sr-only">(current)</span>
+                                    </a>
+                                </li>
+                                <li className="nav-item">
+                                    <a className="nav-link" href="#" onClick={(e) => this.props.add(e)}>Add Book</a>
+                                </li>
+                            </ul>
+                            <form className="form-inline my-2 my-lg-0" onSubmit={(e) => this.onSearch(e)}>
+                                <input className="form-control mr-sm-2" type="search" placeholder="Search by Title" aria-label="Search by Title" id="title-search" name="title" onChange={(e) => this.onInputChange(e)}/>
+                                <button className="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                            </form>
+                        </div>
+                    </nav>
+                );
+            }
         } 
+
+        function TableList(props) {
+            return(
+                <table className="table">
+                    <thead className="thead-dark">
+                        <tr>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {props.list.map((item) => {
+                            return (
+                                <tr key={item._id}>
+                                    <td><a href="#" onClick={(e) => props.action(item._id, e)}>{item.title}</a></td>
+                                    <td>{item.author}</td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            );
+        }
 
         class BookForm extends React.Component {
             constructor(props) {
@@ -201,20 +294,36 @@
                 this.state = {
                     title: '',
                     author: '',
-                    pubDate: 0
+                    pubDate: '',
+                    id: 0,
+                    update: false
                 };
 
                 this.onInputChange = this.onInputChange.bind(this);
                 this.addBook = this.addBook.bind(this);
+                this.updateBook = this.updateBook.bind(this);
             }
 
-            onInputChange(e) {
+            componentDidMount() {
+                let book = this.props.book;
+                if(book) {
+                    this.setState({ 
+                        title: book.title, 
+                        author: book.author, 
+                        pubDate: book.pubDate, 
+                        id: book._id, 
+                        update: true 
+                    });
+                }
+            }            
+
+            onInputChange(e) { // changes state value as user changes input
                 const key = e.target.name;
                 const value = e.target.value; 
                 this.setState({ [key]: value });
             }
 
-            addBook(e) {
+            addBook(e) { // add book to collection
                 e.preventDefault();
                 const newBook = {
                     title: this.state.title,
@@ -222,46 +331,61 @@
                     pubDate: parseInt(this.state.pubDate),
                 };
 
-                console.log(JSON.stringify(newBook));
-                fetch('/api/books', {
+                fetch('/api/books/add', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(newBook)
                 })
-                .then(res => {
-                    res.json();
-                })
-                .then((data) => { 
-                    this.props.action(); 
-                })
+                .then(res => res.json())
+                .then(() => this.props.hideForm())
                 .catch((err) => { console.log('Database Error!', err) });                
             }
 
+            updateBook(e) { // update existing book
+                e.preventDefault();
+                const updatedBook = {
+                    _id: this.state.id,
+                    title: this.state.title,
+                    author: this.state.author,
+                    pubDate: parseInt(this.state.pubDate)
+                };
+                this.props.update(updatedBook);
+            }
+            
             render() {
-                return(
-                    <form onSubmit={(e) => this.addBook(e)}>
-                        <div className="form-group">
-                            <label htmlFor="title">Title</label>
-                            <input type="text" className="form-control" name="title" onChange={(e) => this.onInputChange(e)} />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="author">Author</label>
-                            <input type="text" className="form-control" name="author" onChange={(e) => this.onInputChange(e)} />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="pubDate">Publishing Date</label>
-                            <input type="number" className="form-control" name="pubDate" onChange={(e) => this.onInputChange(e)} />
-                        </div>
+                let actionLink = () => { // link will either add/update 
+                    if (this.state.update) {
+                        return((e) => this.updateBook(e));
+                    } else {
+                        return((e) => this.addBook(e));
+                    }
+                }
 
-                        <button type="submit" className="btn btn-primary">Add Book</button>
-                    </form>
+                return(
+                    <div>
+                        <form onSubmit={actionLink()}>
+                            <FormField name="title" value={this.state.title} type="text" label="Title" onChange={(e) => this.onInputChange(e)} />
+                            <FormField name="author" value={this.state.author} type="text" label="Author" onChange={(e) => this.onInputChange(e)} />
+                            <FormField name="pubDate" value={this.state.pubDate} type="number" label="Year Published" onChange={(e) => this.onInputChange(e)} />
+
+                            <button type="submit" className="btn btn-primary">{this.state.update ? 'Update' : 'Add'} Book</button>
+                            <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={this.props.action}>Back to Book List</button>
+                        </form>
+                    </div>
                 );
             }
         }
-            
+
+        const FormField = (props) => {
+            return(                    
+                <div className="form-group">
+                    <label htmlFor={props.name}>{props.label}</label>
+                    <input type={props.type} className="form-control" name={props.name} value={props.value} onChange={props.onChange} />
+                </div>
+            );
+        }
 
         ReactDOM.render(<App />, document.getElementById('app'));
     </script>
 </body>
-
 </html>
