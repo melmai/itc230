@@ -136,14 +136,14 @@
                 if (this.state.editBook && !this.state.selected) { // show blank form to add book
                     return(
                         <div>
-                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} reset={this.showList} />
                             <BookForm hideForm={this.hideForm} />
                         </div>
                     );
                 } else if (this.state.editBook) { // show edit form with autopopulated fields
                     return(
                         <div>
-                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} reset={this.showList} />
                             <BookForm book={this.state.selected} update={this.updateBook} />
                         </div>
                     );
@@ -153,7 +153,7 @@
                     
                     return(
                         <div>
-                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} reset={this.showList} />
                             {isUpdated}{isDeleted}
                             <table className="table">
                                 <tbody>
@@ -179,7 +179,7 @@
                 } else if (this.state.query && this.state.searchResults.length === 0) { // inform user if no search results
                     return(
                         <div>
-                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} reset={this.showList} />
                             <div className="alert alert-danger" role="alert">
                                 No results found!
                             </div>
@@ -191,7 +191,7 @@
                 } else if (this.state.searchResults.length) { // show search results 
                     return(
                         <div>
-                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} reset={this.showList} />
                             <TableList list={this.state.searchResults} action={this.showBook}/>
                             <button className="btn btn-outline-primary my-2 my-sm-0" href="#" onClick={(e) => this.showForm(e)}>Add Book</button>
                             <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showAll(e)}>Back to List</button>
@@ -200,7 +200,7 @@
                 } else if (this.state.books.length) { // show list of books
                     return(
                         <div>
-                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
+                            <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} reset={this.showList} />
                             <TableList list={this.state.books} action={this.showBook} />
                             <button className="btn btn-outline-primary my-2 my-sm-0" href="#" onClick={(e) => this.showForm(e)}>Add Book</button>
                             <button className="btn btn-outline-success my-2 my-sm-0" href="#" onClick={(e) => this.showAll(e)}>Back to Library</button>
@@ -231,7 +231,13 @@
                 e.preventDefault();
                 this.props.search(this.state.search);
                 this.setState({ search: '' });
-            }          
+            }    
+
+            handleAdd(e) {
+                e.preventDefault();
+                this.props.reset();
+                this.props.add(e);
+            }      
 
             render() {
                 return(
@@ -250,7 +256,7 @@
                                     </a>
                                 </li>
                                 <li className="nav-item">
-                                    <a className="nav-link" href="#" onClick={(e) => this.props.add(e)}>Add Book</a>
+                                    <a className="nav-link" href="#" onClick={(e) => this.handleAdd(e)}>Add Book</a>
                                 </li>
                             </ul>
                             <form className="form-inline my-2 my-lg-0" onSubmit={(e) => this.onSearch(e)}>
