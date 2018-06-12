@@ -50,15 +50,14 @@
 
             resetState() { // set state to default values
                 this.setState({ 
-                    books: [],
-                    selected: null,
-                    editBook: false,
-                    searchResults: [],
-                    query: false,
-                    updated: false,
-                    deleted: false
+                    books: [], 
+                    selected: null, 
+                    editBook: false, 
+                    searchResults: [], 
+                    query: false, 
+                    updated: false, 
+                    deleted: false 
                 });
-                //document.getElementById('title-search').value = '';               
             }
 
             showAll(e) { // show all books
@@ -105,11 +104,11 @@
                 .then(() => {
                     this.hideForm();
                     this.setState({ 
-                        selected: {
-                            _id: book._id,
-                            title: book.title,
-                            author: book.author,
-                            pubDate: book.pubDate,
+                        selected: { 
+                            _id: book._id, 
+                            title: book.title, 
+                            author: book.author, 
+                            pubDate: book.pubDate 
                         },
                         updated: true
                     });
@@ -199,8 +198,6 @@
                         </div>
                     );
                 } else if (this.state.books.length) { // show list of books
-
-                    
                     return(
                         <div>
                             <Nav search={this.searchTitle} add={(e) => this.showForm(e)} goHome={(e) => this.showAll(e)} />
@@ -289,7 +286,6 @@
                 </table>
             );
         }
-    
 
         class BookForm extends React.Component {
             constructor(props) {
@@ -311,15 +307,14 @@
             componentDidMount() {
                 let book = this.props.book;
                 if(book) {
-                    this.setState({
-                        title: book.title,
-                        author: book.author,
-                        pubDate: book.pubDate,
-                        id: book._id,
-                        update: true
+                    this.setState({ 
+                        title: book.title, 
+                        author: book.author, 
+                        pubDate: book.pubDate, 
+                        id: book._id, 
+                        update: true 
                     });
                 }
-
             }            
 
             onInputChange(e) { // changes state value as user changes input
@@ -356,7 +351,6 @@
                 };
                 this.props.update(updatedBook);
             }
-
             
             render() {
                 let actionLink = () => { // link will either add/update 
